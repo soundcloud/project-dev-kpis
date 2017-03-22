@@ -1,0 +1,9 @@
+jira
+PyGithub
+prometheus_client
+python-dateutil
+retrying
+mock
+pytz
+flask
+gevent

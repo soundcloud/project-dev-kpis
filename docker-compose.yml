@@ -1,0 +1,32 @@
+version: '3'
+services:
+  grafana:
+    image: "grafana/grafana"
+    volumes:
+      - "${GRAFANA_CONFIG}:/usr/share/grafana/conf/defaults.ini"
+      - "${GRAFANA_DASHBOARD_DIR}:/var/lib/grafana/dashboards"
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f localhost:3000/api/health && echo 'ready'"]
+      interval: 10s
+      retries: 30
+  prometheus:
+    image: "prom/prometheus"
+    volumes:
+      - "${PROMETHEUS_CONFIG}:/etc/prometheus/prometheus.yml"
+      - "./config/prometheus.rules:/etc/prometheus/prometheus.rules"
+    ports:
+      - "9090:9090"
+  project-dev-kpis:
+    image: "soundcloud/project-dev-kpis"
+    env_file:
+    - "${PDK_ENV}"
+    volumes:
+      - "${PDK_PROJECTS_CONFIG}:/projects.json"
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f localhost:80/-/health && echo 'ready'"]
+      interval: 10s
+      retries: 30

@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+COMMAND=$1
+COMMAND=${COMMAND:-up}
+
+DIR=$( cd "$( dirname "$BASH_SOURCE[0]" )" && pwd )
+
+GRAFANA_PORT=3000
+GRAFANA_AUTH='admin:admin'
+
+export GRAFANA_CONFIG=${DIR}/config/grafana.ini
+export GRAFANA_DASHBOARD_DIR=${DIR}/dashboards
+export PDK_PROJECTS_CONFIG=${PDK_PROJECTS_CONFIG:-${DIR}/config/sample_projects.json}
+export PDK_ENV=${PDK_ENV:-${DIR}/config/sample.env}
+export PROMETHEUS_CONFIG=${DIR}/config/prometheus.yml
+
+grafana_ready() {
+  curl \
+    -f \
+    -u "$GRAFANA_AUTH" \
+    "http://localhost:${GRAFANA_PORT}/api/datasources" &> /dev/null
+  echo "$?"
+}
+
+set_datasource() {
+  while [ "$(grafana_ready)" != "0" ]
+  do
+    echo "[COMPOSE-CTL] Waiting for grafana to be ready"
+    sleep 2
+  done
+
+  curl \
+    -XPOST \
+    -w "[COMPOSE-CTL] POST HTTP %{http_code} %{url_effective} %{time_total}s\\n" \
+    -u "$GRAFANA_AUTH" \
+    -H 'Content-Type: application/json' \
+    -H 'Accept: application/json' \
+    -d '{"name":"kpis", "type":"prometheus", "url":"http://localhost:9090", "access":"direct", "basicAuth":false }' \
+    -o /dev/null \
+    "http://localhost:${GRAFANA_PORT}/api/datasources" 2> /dev/null
+}
+
+if [ "$COMMAND" = "up" ]; then
+  sleep 2 && set_datasource &
+
+  export FORK_PID=$!
+
+  trap "{ kill $FORK_PID || true; docker-compose down; }" EXIT
+
+  docker-compose up
+else
+  docker-compose down
+fi

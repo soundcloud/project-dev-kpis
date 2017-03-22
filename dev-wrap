@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# bin/devwrap This script is used to source a configuration file and make it
+# available in Makefiles and development targets
+set -e
+
+tmp_file=`mktemp /tmp/dev-wrap-XXXXXXX`
+
+function finish {
+  rm -f $tmp_file
+}
+
+trap finish EXIT SIGINT SIGHUP
+
+# parse command line for --config and load configuration file
+
+if [[ "$1" == --config=* ]]; then
+  config_file=$(echo $1 | awk -F= '{print $2}')
+fi
+
+if [ -z "$config_file" ]; then
+  echo "usage: dev-wrap --config=<config file>"
+  exit 1
+fi
+
+if [ ! -f "$config_file" ]; then
+  echo "could not load configuraton file $config_file"
+  exit 1
+fi
+
+echo "sourcing env from $config_file"
+cp $config_file $tmp_file
+
+set -a
+source $tmp_file
+set +a
+
+shift
+exec "$@"

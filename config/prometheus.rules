@@ -1,0 +1,254 @@
+# lead time
+
+project:project_lead_time_days:max1h =
+  histogram_quantile(
+    1.0,
+    sum by (project,le) (rate(project_time_days_bucket{metric="lead-time"}[1h]))
+  )
+
+project:project_lead_time_days:mean1h =
+  sum by (project) (rate(project_time_days_sum{metric="lead-time"}[1h])) /
+  sum by (project) (rate(project_time_days_count{metric="lead-time"}[1h]))
+
+project:project_lead_time_days:median1h =
+  histogram_quantile(
+    0.5,
+    sum by (project,le) (rate(project_time_days_bucket{metric="lead-time"}[1h]))
+  )
+
+project:project_lead_time_days:min1h =
+  histogram_quantile(
+    0.0,
+    sum by (project,le) (rate(project_time_days_bucket{metric="lead-time"}[1h]))
+  )
+
+# cycle time
+
+project:project_cycle_time_days:max1h =
+  histogram_quantile(
+    1.0,
+    sum by (project,le) (rate(project_time_days_bucket{metric="cycle-time"}[1h]))
+  )
+
+project:project_cycle_time_days:mean1h =
+  sum by (project) (rate(project_time_days_sum{metric="cycle-time"}[1h])) /
+  sum by (project) (rate(project_time_days_count{metric="cycle-time"}[1h]))
+
+project:project_cycle_time_days:median1h =
+  histogram_quantile(
+    0.5,
+    sum by (project,le) (rate(project_time_days_bucket{metric="cycle-time"}[1h]))
+  )
+
+project:project_cycle_time_days:min1h =
+  histogram_quantile(
+    0.0,
+    sum by (project,le) (rate(project_time_days_bucket{metric="cycle-time"}[1h]))
+  )
+
+# backlog completion lower bound
+
+project:project_issues_lower_bound:max1h =
+  max by (project) (
+    sum by (project) (
+      max without (instance) (project_unresolved_issues{product_granularity="True"})
+    ) *
+    sum by (project) (
+      rate(project_time_days_sum{metric="cycle-time"}[1h])
+    ) /
+    sum by (project) (
+      rate(project_time_days_count{metric="cycle-time"}[1h])
+    )
+  )
+
+project:project_issues_lower_bound:avg1h =
+  avg by (project) (
+    sum by (project) (
+      max without (instance) (project_unresolved_issues{product_granularity="True"})
+    ) *
+    sum by (project) (
+      rate(project_time_days_sum{metric="cycle-time"}[1h])
+    ) /
+    sum by (project) (
+      rate(project_time_days_count{metric="cycle-time"}[1h])
+    )
+  )
+
+project:project_issues_lower_bound:min1h =
+  avg by (project) (
+    sum by (project) (
+      max without (instance) (project_unresolved_issues{product_granularity="True"})
+    ) *
+    sum by (project) (
+      rate(project_time_days_sum{metric="cycle-time"}[1h])
+    ) /
+    sum by (project) (
+      rate(project_time_days_count{metric="cycle-time"}[1h])
+    )
+  )
+
+# num unresolved issues / num contributors
+
+project:project_unresolved_parent_issues_to_contributors:ratio =
+  sum by (project) (
+    max without (instance) (
+      project_unresolved_issues{parent="False"}
+    )
+  ) /
+  sum by (project) (
+    project_contributors
+  )
+
+# num project features / num contributors
+
+project:project_features_to_contributors:ratio =
+  sum by (project) (
+    max without (instance) (
+      label_replace(features, "project", "$1", "owner", "(.*)")
+    )
+  ) /
+  max by (project) (
+    project_contributors
+  )
+
+# queue utilization metrics
+
+project:project_unresolved_wip_issues_to_contributors:ratio =
+  sum by (project) (
+    max without (instance) (
+      project_unresolved_issues{wip="True", parent="False"}
+    )
+  ) /
+  sum by (project) (
+    project_contributors
+  )
+
+project:project_unresolved_planned_issues_to_contributors:ratio =
+  sum by (project) (
+    max without (instance) (
+      project_unresolved_issues{wip="False", parent="False"}
+    )
+  ) /
+  sum by (project) (
+    project_contributors
+  )
+
+project:project_products_in_wip:count =
+  sum by (project) (
+    max without (instance) (
+      project_unresolved_issues{wip="True", product_granularity="True"}
+    )
+  )
+
+# flow diagrams
+
+project:simplified_project_unresolved_issues:count =
+  sum by (project, wip) (
+    max by (project, issue_type, status, status_ordinal, wip) (
+      project_unresolved_issues{parent="False"}
+    )
+  )
+
+project:project_unresolved_issues_by_status_ordinal:count =
+  sum by (project, status_ordinal) (
+    max by (project, issue_type, status, status_ordinal, wip) (
+      project_unresolved_issues{parent="False"}
+    )
+  )
+
+# backlog composition
+
+project:project_unresolved_issues_by_issue_type:count =
+  sum by (project, issue_type) (
+    project_unresolved_issues
+  )
+
+# project issues breakdown by if issue represents product
+
+project:project_wip_issues_by_product_granularity:count =
+  sum by (project, product_granularity) (
+    project_unresolved_issues{wip="True"}
+  )
+
+# code inventory size
+
+owner:code_inventory_commits_by_repo:count =
+  max by (owner, repo) (
+    code_inventory{metric="commits"}
+  )
+
+owner:code_inventory_additions_by_repo:count =
+  max by (owner, repo) (
+    code_inventory{metric="additions"}
+  )
+
+owner:code_inventory_deletions_by_repo:count =
+  max by (owner, repo) (
+    code_inventory{metric="deletions"}
+  )
+
+owner:code_inventory_commits_by_owner:count =
+  sum by (owner) (
+    max without (instance) (
+      code_inventory{metric="commits"}
+    )
+  )
+
+owner:code_inventory_additions_by_owner:count =
+  sum by (owner) (
+    max without (instance) (
+      code_inventory{metric="additions"}
+    )
+  )
+
+owner:code_inventory_deletions_by_owner:count =
+  sum by (owner) (
+    max without (instance) (
+      code_inventory{metric="deletions"}
+    )
+  )
+
+# code inventory age
+
+owner:code_inventory_age:max1h =
+  histogram_quantile(
+    1.0,
+    sum by (owner,le) (
+      rate(code_inventory_age_bucket[1h])
+    )
+  )
+
+owner:code_inventory_age:avg1h =
+  sum by (owner) (
+    rate(code_inventory_age_sum[1h])
+  ) /
+  sum by (owner) (
+    rate(code_inventory_age_count[1h])
+  )
+
+owner:code_inventory_age:median1h =
+  histogram_quantile(
+    0.5,
+    sum by (owner, le) (
+      rate(code_inventory_age_bucket[1h])
+    )
+  )
+
+owner:code_inventory_age:min1h =
+  histogram_quantile(
+    0.0,
+    sum by (owner, le) (
+      rate(code_inventory_age_bucket[1h])
+    )
+  )
+
+# code inventory age by owner
+
+owner:code_inventory_age_by_owner:count =
+  sum by (owner, repo) (
+    rate(code_inventory_age_sum[1h])
+  ) /
+  sum by (owner, repo) (
+    rate(code_inventory_age_count[1h])
+  )
+

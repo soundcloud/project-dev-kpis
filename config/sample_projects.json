@@ -1,0 +1,14 @@
+{
+  "projects": [
+    {
+      "project_name": "project-dev-kpis",
+      "project_name_synonyms": ["PDK"],
+      "project_id": "PDK",
+      "product_granularity": "Story",
+      "planning_workflow_statuses": ["Backlog"],
+      "wip_workflow_statuses": ["Selected For Development", "In Progress"],
+      "completed_status": "Done",
+      "transition_parent_issues": true
+    }
+  ]
+}

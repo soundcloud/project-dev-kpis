@@ -1,0 +1,7 @@
+.idea
+*.pyc
+target
+.kube
+.DS_Store
+.bash_history
+tags
