@@ -21,9 +21,10 @@ services:
   project-dev-kpis:
     image: "soundcloud/project-dev-kpis"
     env_file:
-    - "${PDK_ENV}"
+      - "${PDK_ENV}"
     volumes:
       - "${PDK_PROJECTS_CONFIG}:/projects.json"
+      - "/tmp:/tmp"
     ports:
       - "8080:8080"
     healthcheck:
