@@ -79,9 +79,10 @@ def monitor_inventory_metrics(synonym_mappings):
 
     minus_three_months = (datetime.now() - timedelta(3 * 365 / 12)).isoformat().split('.')[0]
 
-    git = Github(get_access_token())
+    def git():
+        return Github(get_access_token())
 
-    for repo in git.search_repositories('org:soundcloud pushed:>' + minus_three_months):
+    for repo in git().search_repositories('org:soundcloud pushed:>' + minus_three_months):
         owner = get_owner(synonym_mappings, repo)
 
         REPO_SCRAPE_TIMES[(owner, repo.name)] = time.time()
@@ -93,7 +94,7 @@ def monitor_inventory_metrics(synonym_mappings):
         manifests = [None]
 
         try:
-            manifests = list(git.search_code(
+            manifests = list(git().search_code(
                 'repo:soundcloud/%s language:json filename:*manifest*.json' % repo.name))
         except GithubException:
             logger.error('Could not search repo %s!' % repo.name)
