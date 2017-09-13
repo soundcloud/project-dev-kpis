@@ -26,7 +26,7 @@ $ make
 $ make test
 ```
 
-## Running
+## Run
 
 A [docker-compose](https://docs.docker.com/compose/) configuration is included in this repository to make getting started with the project as simple as possible. To use it, follow the following steps.
 
