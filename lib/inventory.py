@@ -55,7 +55,7 @@ def observe_inventory(owner, repo_name, pulls):
         CODE_INVENTORY.labels(owner, repo_name, metric).set(metric_sum)
 
     for pull in pulls:
-        days_old = weekdays_between(pull.updated_at, datetime.now())
+        days_old = weekdays_between(pull.created_at, datetime.now())
         logger.info(
             'Observed for owner "%s", repo "%s", %.2f days old PR' % (owner, repo_name, days_old))
         CODE_INVENTORY_AGE.labels(owner, repo_name).observe(days_old)
