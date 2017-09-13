@@ -1,5 +1,5 @@
 # Project Development KPIs
-The `Project Development KPIs` project allows you monitor quantitative key performance indicators (KPIs) of product development teams. It exports project development KPIs from [Jira](https://www.atlassian.com/software/jira) and [Github](https://github.com) to [prometheus](https://prometheus.io) for monitoring in metrics services such as [Grafana](https://grafana.com/). The current list of metrics provided is listed below.
+`Project Development KPIs` monitors quantitative key performance indicators (KPIs) of product development teams. It exports project development KPIs from [Jira](https://www.atlassian.com/software/jira) and [Github](https://github.com) to [prometheus](https://prometheus.io) for monitoring in metrics services such as [Grafana](https://grafana.com/). The current list of metrics provided is listed below.
 
 * [Lead & Cycle time](https://medium.com/swlh/agile-metrics-the-good-the-bad-and-the-ugly-65639d28fd29#.iof3qoqfe) based on a 5 issue rolling average.
 * Counts of unresolved issues in your backlog by issue type and status. This enables the measures below.
