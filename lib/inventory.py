@@ -3,14 +3,15 @@ import time
 import json
 import os
 from retrying import retry
-from github import Github, GithubException
+from github import Github, GithubException, GithubIntegration
 from prometheus_client import Gauge, Histogram
 
 from util import *
 
-GITHUB_ACCESS_TOKENS = os.getenv('GITHUB_ACCESS_TOKENS').split(',')
-
-GITHUB_ACCESS_TOKENS_SELECTOR = 0
+GITHUB_ACCESS_TOKEN = os.getenv('GITHUB_ACCESS_TOKEN')
+GITHUB_APP_ID = os.getenv('GITHUB_APP_ID')
+GITHUB_INTEGRATION_ID = os.getenv('GITHUB_INTEGRATION_ID')
+GITHUB_INTEGRATION_PRIVATE_KEY = os.getenv('GITHUB_INTEGRATION_PRIVATE_KEY')
 
 CODE_INVENTORY = Gauge(
     'code_inventory', 'Amount of unmerged work in a repository.',
@@ -35,10 +36,12 @@ REPO_SCRAPE_TIMES = {}
 
 
 def get_access_token():
-    global GITHUB_ACCESS_TOKENS_SELECTOR
-    token = GITHUB_ACCESS_TOKENS[GITHUB_ACCESS_TOKENS_SELECTOR % len(GITHUB_ACCESS_TOKENS)]
-    GITHUB_ACCESS_TOKENS_SELECTOR += 1
-    return token
+    if GITHUB_ACCESS_TOKEN:
+        return GITHUB_ACCESS_TOKEN
+    else:
+        priv_key = open(GITHUB_INTEGRATION_PRIVATE_KEY, "r").read()
+        integration = GithubIntegration(GITHUB_APP_ID, priv_key)
+        return integration.get_access_token(GITHUB_INTEGRATION_ID).token
 
 
 def observe_inventory(owner, repo_name, pulls):

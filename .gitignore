@@ -1,5 +1,7 @@
 .idea
 *.pyc
+config/production.env
+config/projects.json
 target
 .kube
 .DS_Store

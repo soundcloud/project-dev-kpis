@@ -32,12 +32,13 @@ A [docker-compose](https://docs.docker.com/compose/) configuration is included i
 
 ### Define your environment
 
-Using the development, fill in your jira and github credentials as shown below. You can ignore `JIRA_CONTROL_SECRET` and `JIRA_CONTROL_PATH` for now.
+Using the sample environment as a base, fill in your Jira and GitHub credentials. You can ignore `JIRA_CONTROL_SECRET` and `JIRA_CONTROL_PATH` for now.
 
 ```bash
 $ cp config/sample.env config/production.env
 $ vim config/production.env
 ```
+
 ### Configure your Jira project
 
 To add your project for export, create a configuration JSON file.
@@ -82,6 +83,7 @@ Please note that it takes ~20 minutes for data to start showing up on the dashbo
 The files under `dashboards/*.json` contain two sample grafana dashboards described below.
 
 #### `Project Development KPIs` dashboard
+
 The `Project Development KPIs` dashboard presents all metrics in detail and is meant for finer-grained analytics. See an image of the dasboard with data below.
 
 ![overview!](https://github.com/soundcloud/project-dev-kpis/blob/master/assets/overview_dashboard.png?raw=true)
@@ -96,12 +98,6 @@ The `Project Development KPIs | Summary` dashboard is meant to be displayed in a
 
 If you want to contribute to the project please read
 [CONTRIBUTING.md](CONTRIBUTING.md).
-
-# SoundCloud deployment
-
-*FOR SOUNDCLOUDERS ONLY*
-
-To deploy this on SoundCloud's internal infrastructure, see [this repo](https://github.com/soundcloud/project-dev-kpis-deployment).
 
 # Copyright
 
