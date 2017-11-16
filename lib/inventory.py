@@ -8,6 +8,7 @@ from prometheus_client import Gauge, Histogram
 
 from util import *
 
+GITHUB_ACCESS_TOKEN = os.getenv('GITHUB_ACCESS_TOKEN')
 GITHUB_APP_ID = os.getenv('GITHUB_APP_ID')
 GITHUB_INTEGRATION_ID = os.getenv('GITHUB_INTEGRATION_ID')
 GITHUB_INTEGRATION_PRIVATE_KEY = os.getenv('GITHUB_INTEGRATION_PRIVATE_KEY')
@@ -35,9 +36,12 @@ REPO_SCRAPE_TIMES = {}
 
 
 def get_access_token():
-    priv_key = open(GITHUB_INTEGRATION_PRIVATE_KEY, "r").read()
-    integration = GithubIntegration(GITHUB_APP_ID, priv_key)
-    return integration.get_access_token(GITHUB_INTEGRATION_ID).token
+    if GITHUB_ACCESS_TOKEN:
+        return GITHUB_ACCESS_TOKEN
+    else:
+        priv_key = open(GITHUB_INTEGRATION_PRIVATE_KEY, "r").read()
+        integration = GithubIntegration(GITHUB_APP_ID, priv_key)
+        return integration.get_access_token(GITHUB_INTEGRATION_ID).token
 
 
 def observe_inventory(owner, repo_name, pulls):
