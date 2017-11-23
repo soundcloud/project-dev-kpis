@@ -12,7 +12,7 @@ services:
       interval: 10s
       retries: 30
   prometheus:
-    image: "prom/prometheus"
+    image: "prom/prometheus:v1.8.1"
     volumes:
       - "${PROMETHEUS_CONFIG}:/etc/prometheus/prometheus.yml"
       - "./config/prometheus.rules:/etc/prometheus/prometheus.rules"
