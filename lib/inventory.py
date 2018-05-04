@@ -85,7 +85,7 @@ def monitor_inventory_metrics(synonym_mappings):
     def git():
         return Github(get_access_token())
 
-    for repo in git().search_repositories('org:soundcloud pushed:>' + minus_three_months):
+    for repo in git().search_repositories('org:soundcloud archived:false pushed:>' + minus_three_months):
         owner = get_owner(synonym_mappings, repo)
 
         REPO_SCRAPE_TIMES[(owner, repo.name)] = time.time()
