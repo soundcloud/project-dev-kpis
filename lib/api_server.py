@@ -3,7 +3,7 @@ import os
 from flask import Flask, request
 from company_jira import jira
 from multiprocessing import Process
-from gevent.wsgi import WSGIServer
+from gevent.pywsgi import WSGIServer
 import project_issue_transition
 import shlex
 import requests
