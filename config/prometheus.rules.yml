@@ -1,0 +1,80 @@
+groups:
+- name: config/prometheus.rules
+  rules:
+  - record: project:project_lead_time_days:max1h
+    expr: histogram_quantile(1, sum by(project, le) (rate(project_time_days_bucket{metric="lead-time"}[1h])))
+  - record: project:project_lead_time_days:mean1h
+    expr: sum by(project) (rate(project_time_days_sum{metric="lead-time"}[1h])) /
+      sum by(project) (rate(project_time_days_count{metric="lead-time"}[1h]))
+  - record: project:project_lead_time_days:median1h
+    expr: histogram_quantile(0.5, sum by(project, le) (rate(project_time_days_bucket{metric="lead-time"}[1h])))
+  - record: project:project_lead_time_days:min1h
+    expr: histogram_quantile(0, sum by(project, le) (rate(project_time_days_bucket{metric="lead-time"}[1h])))
+  - record: project:project_cycle_time_days:max1h
+    expr: histogram_quantile(1, sum by(project, le) (rate(project_time_days_bucket{metric="cycle-time"}[1h])))
+  - record: project:project_cycle_time_days:mean1h
+    expr: sum by(project) (rate(project_time_days_sum{metric="cycle-time"}[1h])) /
+      sum by(project) (rate(project_time_days_count{metric="cycle-time"}[1h]))
+  - record: project:project_cycle_time_days:median1h
+    expr: histogram_quantile(0.5, sum by(project, le) (rate(project_time_days_bucket{metric="cycle-time"}[1h])))
+  - record: project:project_cycle_time_days:min1h
+    expr: histogram_quantile(0, sum by(project, le) (rate(project_time_days_bucket{metric="cycle-time"}[1h])))
+  - record: project:project_issues_lower_bound:max1h
+    expr: max by(project) (sum by(project) (max without(instance) (project_unresolved_issues{product_granularity="True"}))
+      * sum by(project) (rate(project_time_days_sum{metric="cycle-time"}[1h])) / sum
+      by(project) (rate(project_time_days_count{metric="cycle-time"}[1h])))
+  - record: project:project_issues_lower_bound:avg1h
+    expr: avg by(project) (sum by(project) (max without(instance) (project_unresolved_issues{product_granularity="True"}))
+      * sum by(project) (rate(project_time_days_sum{metric="cycle-time"}[1h])) / sum
+      by(project) (rate(project_time_days_count{metric="cycle-time"}[1h])))
+  - record: project:project_issues_lower_bound:min1h
+    expr: avg by(project) (sum by(project) (max without(instance) (project_unresolved_issues{product_granularity="True"}))
+      * sum by(project) (rate(project_time_days_sum{metric="cycle-time"}[1h])) / sum
+      by(project) (rate(project_time_days_count{metric="cycle-time"}[1h])))
+  - record: project:project_unresolved_parent_issues_to_contributors:ratio
+    expr: sum by(project) (max without(instance) (project_unresolved_issues{parent="False"}))
+      / sum by(project) (project_contributors)
+  - record: project:project_features_to_contributors:ratio
+    expr: sum by(project) (max without(instance) (label_replace(features, "project",
+      "$1", "owner", "(.*)"))) / max by(project) (project_contributors)
+  - record: project:project_unresolved_wip_issues_to_contributors:ratio
+    expr: sum by(project) (max without(instance) (project_unresolved_issues{parent="False",wip="True"}))
+      / sum by(project) (project_contributors)
+  - record: project:project_unresolved_planned_issues_to_contributors:ratio
+    expr: sum by(project) (max without(instance) (project_unresolved_issues{parent="False",wip="False"}))
+      / sum by(project) (project_contributors)
+  - record: project:project_products_in_wip:count
+    expr: sum by(project) (max without(instance) (project_unresolved_issues{product_granularity="True",wip="True"}))
+  - record: project:simplified_project_unresolved_issues:count
+    expr: sum by(project, wip) (max by(project, issue_type, status, status_ordinal,
+      wip) (project_unresolved_issues{parent="False"}))
+  - record: project:project_unresolved_issues_by_status_ordinal:count
+    expr: sum by(project, status_ordinal) (max by(project, issue_type, status, status_ordinal,
+      wip) (project_unresolved_issues{parent="False"}))
+  - record: project:project_unresolved_issues_by_issue_type:count
+    expr: sum by(project, issue_type) (project_unresolved_issues)
+  - record: project:project_wip_issues_by_product_granularity:count
+    expr: sum by(project, product_granularity) (project_unresolved_issues{wip="True"})
+  - record: owner:code_inventory_commits_by_repo:count
+    expr: max by(owner, repo) (code_inventory{metric="commits"})
+  - record: owner:code_inventory_additions_by_repo:count
+    expr: max by(owner, repo) (code_inventory{metric="additions"})
+  - record: owner:code_inventory_deletions_by_repo:count
+    expr: max by(owner, repo) (code_inventory{metric="deletions"})
+  - record: owner:code_inventory_commits_by_owner:count
+    expr: sum by(owner) (max without(instance) (code_inventory{metric="commits"}))
+  - record: owner:code_inventory_additions_by_owner:count
+    expr: sum by(owner) (max without(instance) (code_inventory{metric="additions"}))
+  - record: owner:code_inventory_deletions_by_owner:count
+    expr: sum by(owner) (max without(instance) (code_inventory{metric="deletions"}))
+  - record: owner:code_inventory_age:max1h
+    expr: histogram_quantile(1, sum by(owner, le) (rate(code_inventory_age_bucket[1h])))
+  - record: owner:code_inventory_age:avg1h
+    expr: sum by(owner) (rate(code_inventory_age_sum[1h])) / sum by(owner) (rate(code_inventory_age_count[1h]))
+  - record: owner:code_inventory_age:median1h
+    expr: histogram_quantile(0.5, sum by(owner, le) (rate(code_inventory_age_bucket[1h])))
+  - record: owner:code_inventory_age:min1h
+    expr: histogram_quantile(0, sum by(owner, le) (rate(code_inventory_age_bucket[1h])))
+  - record: owner:code_inventory_age_by_owner:count
+    expr: sum by(owner, repo) (rate(code_inventory_age_sum[1h])) / sum by(owner, repo)
+      (rate(code_inventory_age_count[1h]))
