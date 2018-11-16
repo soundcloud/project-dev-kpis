@@ -8,6 +8,7 @@ from prometheus_client import Gauge, Histogram
 
 from util import *
 
+GITHUB_ORGANIZATION = os.getenv('GITHUB_ORGANIZATION')
 GITHUB_ACCESS_TOKEN = os.getenv('GITHUB_ACCESS_TOKEN')
 GITHUB_APP_ID = os.getenv('GITHUB_APP_ID')
 GITHUB_INTEGRATION_ID = os.getenv('GITHUB_INTEGRATION_ID')
@@ -85,7 +86,8 @@ def monitor_inventory_metrics(synonym_mappings):
     def git():
         return Github(get_access_token())
 
-    for repo in git().search_repositories('org:soundcloud archived:false pushed:>' + minus_three_months):
+    for repo in git().search_repositories(
+            ('org:%s archived:false pushed:>' % GITHUB_ORGANIZATION) + minus_three_months):
         owner = get_owner(synonym_mappings, repo)
 
         REPO_SCRAPE_TIMES[(owner, repo.name)] = time.time()
@@ -98,7 +100,7 @@ def monitor_inventory_metrics(synonym_mappings):
 
         try:
             manifests = list(git().search_code(
-                'repo:soundcloud/%s language:json filename:*manifest*.json' % repo.name))
+                'repo:%s/%s language:json filename:*manifest*.json' % (GITHUB_ORGANIZATION, repo.name)))
         except GithubException:
             logger.error('Could not search repo %s!' % repo.name)
 
