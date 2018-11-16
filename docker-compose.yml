@@ -15,7 +15,7 @@ services:
     image: "prom/prometheus"
     volumes:
       - "${PROMETHEUS_CONFIG}:/etc/prometheus/prometheus.yml"
-      - "./config/prometheus.rules:/etc/prometheus/prometheus.rules"
+      - "./config/prometheus.rules:/etc/prometheus/prometheus.rules.yml"
     ports:
       - "9090:9090"
   project-dev-kpis:
