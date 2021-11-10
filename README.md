@@ -64,7 +64,7 @@ To view your jira workflow, click 'View Workflow' next to the status indicator o
 
 `https://ORG_SUBDOMAIN.atlassian.net/rest/api/2/issue/ISSUE_KEY/transitions`
 
-### Run with `docker-compose`
+### Run with `docker compose`
 
 To run with your newly configured environment, execute the following.
 
