@@ -45,9 +45,9 @@ if [ "$COMMAND" = "up" ]; then
 
   export FORK_PID=$!
 
-  trap "{ kill $FORK_PID || true; docker-compose down; }" EXIT
+  trap "{ kill $FORK_PID || true; docker compose down; }" EXIT
 
-  docker-compose up
+  docker compose up
 else
-  docker-compose down
+  docker compose down
 fi
